@@ -73,6 +73,7 @@ internal sealed class SplitStrobeMode : LightingModeBase<SplitStrobeModeSettings
         };
         button.Accepting += (_, e) =>
         {
+            var app = button.App ?? throw new InvalidOperationException("Color dialog requires an active Terminal.Gui application.");
             using var dialog = new Dialog
             {
                 Title = labelText.TrimEnd(':'),
@@ -109,7 +110,7 @@ internal sealed class SplitStrobeMode : LightingModeBase<SplitStrobeModeSettings
                 dialog.RequestStop();
             };
             ((Button)save).SuperView?.SetFocus();
-            Application.Run(dialog);
+            app.Run(dialog);
             e.Handled = true;
         };
         return button;
