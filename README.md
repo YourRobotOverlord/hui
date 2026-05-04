@@ -1,3 +1,5 @@
+<img width="1080" height="690" alt="Screenshot 2026-05-04 173747" src="https://github.com/user-attachments/assets/49dedcfb-5a66-4474-b037-31b26e22d66f" />
+
 # hui
 
 `hui` syncs Philips Hue entertainment lights to system audio on Windows. Use it either from the interactive Terminal.Gui app or from the CLI.
@@ -6,7 +8,7 @@ Light updates use the **Hue Entertainment API** DTLS stream on UDP `2100`. Bridg
 
 ## Requirements
 
-- Windows machine with .NET 10 SDK
+- Windows machine with .NET 10 SDK (Linux version coming)
 - Hue Bridge on the local network
 - Entertainment area created in the Hue app
 - Lights assigned to that entertainment area
@@ -141,3 +143,5 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 - `beat-pulse` launches a full-area pulse on detected beats with fast attack and smooth decay. In this mode, `--sensitivity` controls beat detection threshold and `--brightness` controls pulse intensity.
 - The UI also includes `split-strobe`, which randomly splits lights into bass and treble groups with independent colors plus configurable attack, decay, and background levels.
 - When the UI exits while lights are running, `hui` can either send a blackout frame or set the whole entertainment area to a configured solid color before stopping the stream.
+
+<img width="320" height="320" alt="output" src="https://github.com/user-attachments/assets/2daeb89d-c078-4dc7-ae85-4601ca4a69c2" />![Uploading Screenshot 2026-05-04 173523.png…]()
