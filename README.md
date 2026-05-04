@@ -1,0 +1,143 @@
+# hui
+
+`hui` syncs Philips Hue entertainment lights to system audio on Windows. Use it either from the interactive Terminal.Gui app or from the CLI.
+
+Light updates use the **Hue Entertainment API** DTLS stream on UDP `2100`. Bridge REST calls are used for pairing, area discovery, and starting or stopping entertainment mode.
+
+## Requirements
+
+- Windows machine with .NET 10 SDK
+- Hue Bridge on the local network
+- Entertainment area created in the Hue app
+- Lights assigned to that entertainment area
+
+## Quick start
+
+### 1. Pair with the bridge
+
+Press the link button on the Hue Bridge, then run:
+
+```powershell
+dotnet run -- pair --bridge 192.168.1.20
+```
+
+This requests and saves:
+
+- **App key** for authenticated Hue API calls
+- **Client key** for the Hue Entertainment DTLS connection
+
+### 2. List entertainment areas
+
+```powershell
+dotnet run -- list-areas --bridge 192.168.1.20 --app-key YOUR_APP_KEY
+```
+
+This prints area IDs, names, status, and channel positions.
+
+### 3. List audio output devices
+
+```powershell
+dotnet run -- list-devices
+```
+
+Use the `--device-index` value from this list if you do not want the default Windows playback device.
+
+## Interactive app
+
+Launch the Terminal.Gui interface:
+
+```powershell
+dotnet run -- ui
+```
+
+Running the app with no arguments also opens the UI.
+
+### UI shortcuts
+
+- `F1`: open the in-app `README.md` viewer
+- `F3`: open bridge, audio, and app-exit lighting settings
+- `F5`: start or stop lighting
+- `n` / `p`: next or previous lighting mode
+- `b` / `B`: brightness down or up for the current mode
+- `s` / `S`: sensitivity down or up for the current mode
+
+Use `F3` to edit bridge connection, device selection, FPS, and app-exit lighting behavior. Mode-specific settings are edited in the main **Mode Control** pane and are saved immediately.
+
+## CLI mode
+
+Run live audio sync directly from the command line:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area YOUR_AREA_ID
+```
+
+Example with common tuning options:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8 --warm-hue 20 --cool-hue 220
+```
+
+### Mapper examples
+
+Cycle-strobe:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper cycle-strobe --warm-hue 30 --cool-hue 280 --cycle-seconds 8 --brightness 1.0
+```
+
+Sparkle:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper sparkle --warm-hue 210 --cool-hue 300 --sensitivity 2.2 --brightness 0.9
+```
+
+Wave-travel:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper wave-travel --warm-hue 25 --cool-hue 220 --wave-seconds 1.8 --sensitivity 1.9 --brightness 0.95
+```
+
+Ambient-drift:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper ambient-drift --warm-hue 200 --cool-hue 320 --cycle-seconds 14 --sensitivity 1.4 --brightness 0.55
+```
+
+Beat-pulse:
+
+```powershell
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper beat-pulse --warm-hue 18 --cool-hue 240 --sensitivity 1.9 --brightness 1.0
+```
+
+## CLI options
+
+| Option | Required | Description |
+|---|---|---|
+| `--bridge` | Yes | Hue Bridge IP address or hostname. |
+| `--app-key` | Yes | Hue application key used for authenticated bridge API calls. |
+| `--client-key` | Yes | Hue entertainment client key used as the PSK for the DTLS stream. |
+| `--area` | Yes | Entertainment area ID or exact entertainment area name. |
+| `--device-index` | No | Windows render-device index from `list-devices`. If omitted, the default multimedia playback device is used. |
+| `--fps` | No | Stream frame rate. Accepts `1-60`. Default `30`. |
+| `--mapper` | No | Mapper mode: `audio-reactive`, `cycle-strobe`, `sparkle`, `wave-travel`, `ambient-drift`, or `beat-pulse`. Default `audio-reactive`. |
+| `--cycle-seconds` | No | Full hue cycle time in `cycle-strobe`. Accepts values `>= 0.1`. Default `6`. |
+| `--wave-seconds` | No | Wave travel time in `wave-travel`. Accepts values `>= 0.1`. Default `1.6`. |
+| `--sensitivity` | No | In `audio-reactive`, acts as audio gain. In `cycle-strobe`, `sparkle`, `wave-travel`, and `beat-pulse`, higher values make transient-triggered effects fire more easily. Accepts values `>= 0.01`. Default `1.75`. |
+| `--brightness` | No | Maximum brightness cap for streamed colors. In `cycle-strobe` and `beat-pulse`, this directly controls flash or pulse intensity. Accepts `0-1`. Default `1`. |
+| `--warm-hue` | No | Hue angle in degrees for warmer, bass-heavy moments in `audio-reactive`, or the first hue endpoint in `cycle-strobe`. Accepts `0-360`. Default `18`. |
+| `--cool-hue` | No | Hue angle in degrees for cooler, treble-heavy moments in `audio-reactive`, or the second hue endpoint in `cycle-strobe`. Accepts `0-360`. Default `220`. |
+
+## Behavior notes
+
+- `pair` saves the bridge address, app key, and client key to the app config file.
+- `--area` accepts either the exact area ID or the exact area name.
+- `--brightness` limits maximum streamed brightness from `0` to `1`.
+- `--fps` controls how often frames are pushed to the bridge. `30-50` is a practical range.
+- `cycle-strobe` sweeps across the full numeric `--warm-hue` to `--cool-hue` range and back independently of the music. For example, `0` to `360` traverses the full wheel forward and then back. In this mode, `--brightness` controls flash intensity and `--sensitivity` controls how easily detected transients trigger flashes.
+- `sparkle` keeps a dim base wash and overlays transient-triggered random white sparkles. In this mode, higher `--sensitivity` makes sparkles trigger more easily.
+- In the UI, `sparkle` also exposes a configurable sparkle color picker for transient sparkle flashes.
+- `wave-travel` launches alternating left-to-right and right-to-left waves on detected transients. `--wave-seconds` controls travel speed, while `--brightness` controls wave intensity.
+- `ambient-drift` slowly morphs between the hue endpoints while audio only nudges drift speed and brightness. Use larger `--cycle-seconds` values for calmer motion.
+- `beat-pulse` launches a full-area pulse on detected beats with fast attack and smooth decay. In this mode, `--sensitivity` controls beat detection threshold and `--brightness` controls pulse intensity.
+- The UI also includes `split-strobe`, which randomly splits lights into bass and treble groups with independent colors plus configurable attack, decay, and background levels.
+- When the UI exits while lights are running, `hui` can either send a blackout frame or set the whole entertainment area to a configured solid color before stopping the stream.
