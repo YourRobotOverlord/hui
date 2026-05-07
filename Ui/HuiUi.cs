@@ -337,12 +337,14 @@ internal sealed class HuiUi(
             Width = SettingsControlWidth,
             Text = FormatColorButtonText(exitColor)
         };
+        ApplyColorButtonStyle(exitColorButton, exitColor);
         exitColorButton.Accepting += (_, _) =>
         {
             ShowRgbColorPickerDialog("Exit Color", exitColor, newColor =>
             {
                 exitColor = newColor;
                 exitColorButton.Text = FormatColorButtonText(newColor);
+                ApplyColorButtonStyle(exitColorButton, newColor);
             });
         };
         dialog.Add(exitColorButton);
@@ -674,6 +676,7 @@ internal sealed class HuiUi(
             Width = SettingsControlWidth,
             Text = FormatColorButtonText(currentHue)
         };
+        ApplyColorButtonStyle(button, HueToColor(currentHue));
         button.Accepting += (_, _) =>
         {
             ShowColorPickerDialog(label.TrimEnd(':'), currentHue, newHue =>
@@ -681,6 +684,7 @@ internal sealed class HuiUi(
                 currentHue = newHue;
                 onChanged(newHue);
                 button.Text = FormatColorButtonText(newHue);
+                ApplyColorButtonStyle(button, HueToColor(newHue));
             });
         };
         _settingsFrame.Add(button);
@@ -697,6 +701,7 @@ internal sealed class HuiUi(
             Width = SettingsControlWidth,
             Text = FormatColorButtonText(currentColor)
         };
+        ApplyColorButtonStyle(button, currentColor);
         button.Accepting += (_, _) =>
         {
             ShowRgbColorPickerDialog(label.TrimEnd(':'), currentColor, newColor =>
@@ -704,6 +709,7 @@ internal sealed class HuiUi(
                 currentColor = newColor;
                 onChanged(newColor);
                 button.Text = FormatColorButtonText(newColor);
+                ApplyColorButtonStyle(button, newColor);
             });
         };
         _settingsFrame.Add(button);
@@ -792,6 +798,34 @@ internal sealed class HuiUi(
     private static string FormatColorButtonText(Color color)
     {
         return $"#{color.R:X2}{color.G:X2}{color.B:X2} {ColorToHue(color, 0):0}°";
+    }
+
+    private static void ApplyColorButtonStyle(Button button, Color selectedColor)
+    {
+        var foreground = GetContrastingTextColor(selectedColor);
+        var normal = new Terminal.Gui.Drawing.Attribute(foreground, selectedColor);
+        var emphasis = new Terminal.Gui.Drawing.Attribute(foreground, selectedColor, TextStyle.Bold);
+        var underline = new Terminal.Gui.Drawing.Attribute(foreground, selectedColor, TextStyle.Underline);
+        var focus = new Terminal.Gui.Drawing.Attribute(foreground, selectedColor, TextStyle.Bold | TextStyle.Underline);
+
+        button.SetScheme(new Scheme
+        {
+            Normal = normal,
+            HotNormal = underline,
+            Focus = focus,
+            HotFocus = focus,
+            Active = emphasis,
+            HotActive = focus,
+            Highlight = emphasis,
+            Disabled = new Terminal.Gui.Drawing.Attribute(foreground.GetDimmerColor(0.35, selectedColor.IsDarkColor()), selectedColor)
+        });
+    }
+
+    private static Color GetContrastingTextColor(Color background)
+    {
+        return background.IsDarkColor()
+            ? new Color(255, 255, 255)
+            : new Color(0, 0, 0);
     }
 
     private static Color CreateColor(int red, int green, int blue) => new(red, green, blue);
