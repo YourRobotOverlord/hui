@@ -6,6 +6,22 @@ namespace hui.Mapping;
 
 internal static class LightingModeRenderer
 {
+    private static IReadOnlyList<EntertainmentChannel>? _cachedChannels;
+    private static double _cachedMaxAbsX;
+    private static double _cachedMaxAbsY;
+
+    private static (double MaxAbsX, double MaxAbsY) GetExtents(IReadOnlyList<EntertainmentChannel> channels)
+    {
+        if (!ReferenceEquals(channels, _cachedChannels))
+        {
+            _cachedChannels = channels;
+            _cachedMaxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
+            _cachedMaxAbsY = Math.Max(channels.Max(channel => Math.Abs(channel.Position.Y)), 0.001d);
+        }
+
+        return (_cachedMaxAbsX, _cachedMaxAbsY);
+    }
+
     public static ChannelColor[] RenderAudioReactive(
         IReadOnlyList<EntertainmentChannel> channels,
         AudioFrame frame,
@@ -16,8 +32,7 @@ internal static class LightingModeRenderer
             return [];
         }
 
-        var maxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
-        var maxAbsY = Math.Max(channels.Max(channel => Math.Abs(channel.Position.Y)), 0.001d);
+        var (maxAbsX, maxAbsY) = GetExtents(channels);
 
         var spectralHue = LerpAngle(settings.WarmHue, settings.CoolHue, frame.TrebleRatio);
         var brightnessBase = Math.Clamp(
@@ -71,11 +86,23 @@ internal static class LightingModeRenderer
 
         if (value <= 0.001)
         {
-            return channels.Select(channel => new ChannelColor((byte)channel.ChannelId, RgbColor.Black)).ToArray();
+            var blackResult = new ChannelColor[channels.Count];
+            for (var i = 0; i < channels.Count; i++)
+            {
+                blackResult[i] = new ChannelColor((byte)channels[i].ChannelId, RgbColor.Black);
+            }
+
+            return blackResult;
         }
 
         var color = HsvToRgb(hue, 1.0, value);
-        return channels.Select(channel => new ChannelColor((byte)channel.ChannelId, color)).ToArray();
+        var result = new ChannelColor[channels.Count];
+        for (var i = 0; i < channels.Count; i++)
+        {
+            result[i] = new ChannelColor((byte)channels[i].ChannelId, color);
+        }
+
+        return result;
     }
 
     public static ChannelColor[] RenderSparkle(
@@ -89,15 +116,14 @@ internal static class LightingModeRenderer
             return [];
         }
 
-        var maxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
-        var maxAbsY = Math.Max(channels.Max(channel => Math.Abs(channel.Position.Y)), 0.001d);
+        var (maxAbsX, maxAbsY) = GetExtents(channels);
         var spectralHue = LerpAngle(settings.WarmHue, settings.CoolHue, frame.TrebleRatio);
         var baseWash = Math.Clamp(
             ((frame.OverallLevel * settings.Sensitivity * 0.28) + (frame.PeakLevel * 0.08)) * settings.Brightness,
             0,
             settings.Brightness * 0.35);
 
-        var transientThreshold = Math.Clamp(0.58 / Math.Max(settings.Sensitivity, 0.01), 0.08, 0.97);
+        var transientThreshold= Math.Clamp(0.58 / Math.Max(settings.Sensitivity, 0.01), 0.08, 0.97);
         var sparkleGate = NormalizeAboveThreshold(frame.TransientLevel, transientThreshold);
         var sparkleWindow = (int)Math.Floor(elapsedSeconds * 14);
 
@@ -141,7 +167,7 @@ internal static class LightingModeRenderer
             return [];
         }
 
-        var maxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
+        var (maxAbsX, _) = GetExtents(channels);
         var threshold = Math.Clamp(0.54 / Math.Max(settings.Sensitivity, 0.01), 0.06, 0.96);
         var launchStrength = NormalizeAboveThreshold(frame.TransientLevel, threshold);
         var spectralHue = LerpAngle(settings.WarmHue, settings.CoolHue, frame.TrebleRatio);
@@ -211,8 +237,7 @@ internal static class LightingModeRenderer
             return [];
         }
 
-        var maxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
-        var maxAbsY = Math.Max(channels.Max(channel => Math.Abs(channel.Position.Y)), 0.001d);
+        var (maxAbsX, maxAbsY) = GetExtents(channels);
         var speedFactor = 1 + Math.Clamp((frame.OverallLevel * settings.Sensitivity * 0.55) + (frame.PeakLevel * 0.18), 0, 1.25);
         var driftTime = elapsedSeconds * speedFactor;
         var cycleLength = Math.Max(settings.CycleSeconds, 0.1);
@@ -256,8 +281,7 @@ internal static class LightingModeRenderer
             return [];
         }
 
-        var maxAbsX = Math.Max(channels.Max(channel => Math.Abs(channel.Position.X)), 0.001d);
-        var maxAbsY = Math.Max(channels.Max(channel => Math.Abs(channel.Position.Y)), 0.001d);
+        var (maxAbsX, maxAbsY) = GetExtents(channels);
         var threshold = Math.Clamp(0.52 / Math.Max(settings.Sensitivity, 0.01), 0.06, 0.96);
         var beatStrength = NormalizeAboveThreshold(frame.TransientLevel, threshold);
         var spectralHue = LerpAngle(settings.WarmHue, settings.CoolHue, frame.TrebleRatio);
@@ -335,11 +359,15 @@ internal static class LightingModeRenderer
         var bassColor = ScaleColor(GetSplitStrobeBassColor(settings), state.BassLevel);
         var trebleColor = ScaleColor(GetSplitStrobeTrebleColor(settings), state.TrebleLevel);
 
-        return channels.Select(channel =>
-                new ChannelColor(
-                    (byte)channel.ChannelId,
-                    state.IsBassChannel(channel.ChannelId) ? bassColor : trebleColor))
-            .ToArray();
+        var result = new ChannelColor[channels.Count];
+        for (var i = 0; i < channels.Count; i++)
+        {
+            result[i] = new ChannelColor(
+                (byte)channels[i].ChannelId,
+                state.IsBassChannel(channels[i].ChannelId) ? bassColor : trebleColor);
+        }
+
+        return result;
     }
 
     private static double Lerp(double start, double end, double amount) => start + ((end - start) * amount);
