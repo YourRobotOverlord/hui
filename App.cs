@@ -17,12 +17,7 @@ internal static class App
     public static async Task<int> RunAsync(string[] args)
     {
         using var cancellationSource = new CancellationTokenSource();
-        Console.CancelKeyPress += (_, eventArgs) =>
-        {
-            eventArgs.Cancel = true;
-            cancellationSource.Cancel();
-            _ = Task.Delay(TimeSpan.FromSeconds(6)).ContinueWith(_ => Environment.Exit(0));
-        };
+        Console.CancelKeyPress += (_, _) => cancellationSource.Cancel();
 
         try
         {
@@ -48,8 +43,6 @@ internal static class App
 
     private static async Task<int> RunCoreAsync(string[] args, CancellationToken cancellationToken)
     {
-        Button.DefaultShadow = ShadowStyles.None;
-
         var command = CommandLine.Parse(args);
         using var host = BuildHost();
         var bridgeClient = host.Services.GetRequiredService<HueBridgeClient>();
@@ -61,6 +54,7 @@ internal static class App
                 return 0;
 
             case UiCommand:
+                Button.DefaultShadow = ShadowStyles.None;
                 return await host.Services.GetRequiredService<HuiUi>().RunAsync(cancellationToken).ConfigureAwait(false);
 
             case PairCommand pair:
