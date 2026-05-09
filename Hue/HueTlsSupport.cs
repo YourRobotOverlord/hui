@@ -14,8 +14,8 @@ internal sealed class UdpTransport : DatagramTransport
     public UdpTransport(UdpClient udpClient)
     {
         _udpClient = udpClient;
-        _udpClient.Client.ReceiveTimeout = 30000;
-        _udpClient.Client.SendTimeout = 30000;
+        _udpClient.Client.ReceiveTimeout = 3000;
+        _udpClient.Client.SendTimeout = 3000;
     }
 
     public int GetReceiveLimit() => 65535;

@@ -21,6 +21,7 @@ internal static class App
         {
             eventArgs.Cancel = true;
             cancellationSource.Cancel();
+            _ = Task.Delay(TimeSpan.FromSeconds(6)).ContinueWith(_ => Environment.Exit(0));
         };
 
         try
