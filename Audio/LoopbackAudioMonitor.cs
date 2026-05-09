@@ -8,12 +8,14 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
 {
     private const int AnalysisSize = 2048;
     private const int HistorySize = 4096;
+    private const double VolumeRefreshSeconds = 0.5;
 
     private readonly object _sync = new();
     private readonly MMDeviceEnumerator _enumerator;
     private readonly MMDevice _device;
     private readonly WasapiLoopbackCapture _capture;
     private readonly float[] _history = new float[HistorySize];
+    private readonly Complex[] _fftBuffer = new Complex[AnalysisSize];
     private int _historyWriteIndex;
     private int _historyCount;
     private double _leftLevel;
@@ -21,6 +23,8 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
     private double _overallLevel;
     private double _peakLevel;
     private double _transientLevel;
+    private double _cachedSystemVolume = 1.0;
+    private double _volumeRefreshDeadline;
     private bool _started;
 
     private LoopbackAudioMonitor(MMDeviceEnumerator enumerator, MMDevice device)
@@ -126,10 +130,12 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
             return;
         }
 
+        var systemVolume = GetCachedSystemVolume();
+
         double leftSquareSum = 0;
         double rightSquareSum = 0;
         double peak = 0;
-        var systemVolume = GetSystemVolumeScale();
+        var monoSamples = new float[frameCount];
 
         for (var frameIndex = 0; frameIndex < frameCount; frameIndex++)
         {
@@ -143,13 +149,7 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
             leftSquareSum += left * left;
             rightSquareSum += right * right;
             peak = Math.Max(peak, Math.Max(Math.Abs(left), Math.Abs(right)));
-
-            lock (_sync)
-            {
-                _history[_historyWriteIndex] = mono;
-                _historyWriteIndex = (_historyWriteIndex + 1) % HistorySize;
-                _historyCount = Math.Min(_historyCount + 1, HistorySize);
-            }
+            monoSamples[frameIndex] = mono;
         }
 
         var leftRms = NormalizeLevel(Math.Sqrt(leftSquareSum / frameCount), systemVolume);
@@ -159,6 +159,13 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
 
         lock (_sync)
         {
+            for (var i = 0; i < frameCount; i++)
+            {
+                _history[_historyWriteIndex] = monoSamples[i];
+                _historyWriteIndex = (_historyWriteIndex + 1) % HistorySize;
+            }
+            _historyCount = Math.Min(_historyCount + frameCount, HistorySize);
+
             var transientTarget = Math.Clamp(
                 (Math.Max(0, peak - _peakLevel) * 3.2) +
                 (Math.Max(0, overallRms - _overallLevel) * 7.5) +
@@ -188,12 +195,20 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
         };
     }
 
-    private double GetSystemVolumeScale()
+    private double GetCachedSystemVolume()
     {
+        var now = Environment.TickCount64 / 1000.0;
+        if (now < _volumeRefreshDeadline)
+        {
+            return _cachedSystemVolume;
+        }
+
         var endpointVolume = _device.AudioEndpointVolume;
-        return endpointVolume.Mute
+        _cachedSystemVolume = endpointVolume.Mute
             ? 0
             : Math.Clamp(endpointVolume.MasterVolumeLevelScalar, 0, 1);
+        _volumeRefreshDeadline = now + VolumeRefreshSeconds;
+        return _cachedSystemVolume;
     }
 
     private static double NormalizeLevel(double level, double systemVolume)
@@ -235,19 +250,18 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
         }
     }
 
-    private static (double Bass, double Mid, double Treble) AnalyzeBands(float[] samples, int sampleRate)
+    private (double Bass, double Mid, double Treble) AnalyzeBands(float[] samples, int sampleRate)
     {
-        var spectrum = new Complex[AnalysisSize];
         var fftBits = (int)Math.Log2(AnalysisSize);
 
         for (var index = 0; index < AnalysisSize; index++)
         {
             var window = 0.54f - 0.46f * MathF.Cos(2 * MathF.PI * index / (AnalysisSize - 1));
-            spectrum[index].X = samples[index] * window;
-            spectrum[index].Y = 0;
+            _fftBuffer[index].X = samples[index] * window;
+            _fftBuffer[index].Y = 0;
         }
 
-        FastFourierTransform.FFT(true, fftBits, spectrum);
+        FastFourierTransform.FFT(true, fftBits, _fftBuffer);
 
         double bass = 0;
         double mid = 0;
@@ -261,7 +275,7 @@ internal sealed class LoopbackAudioMonitor : IAudioMonitor
                 continue;
             }
 
-            var magnitude = Math.Sqrt((spectrum[index].X * spectrum[index].X) + (spectrum[index].Y * spectrum[index].Y));
+            var magnitude = Math.Sqrt((_fftBuffer[index].X * _fftBuffer[index].X) + (_fftBuffer[index].Y * _fftBuffer[index].Y));
 
             if (frequency < 250)
             {
