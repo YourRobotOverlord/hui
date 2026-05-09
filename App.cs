@@ -185,15 +185,6 @@ internal static class App
     private static async Task<int> RunStreamingAsync(LightingSessionRunner sessionRunner, RunCommand command, CancellationToken cancellationToken)
     {
         var settings = CreateRunSettings(command);
-        var modeCatalog = new LightingModeCatalog([
-            new AudioReactiveMode(),
-            new CycleStrobeMode(),
-            new SparkleMode(),
-            new WaveTravelMode(),
-            new AmbientDriftMode(),
-            new BeatPulseMode(),
-            new SplitStrobeMode()
-        ]);
         Console.WriteLine($"Mode:   {settings.CurrentModeId}");
         Console.WriteLine($"FPS:    {settings.Connection.Fps}");
         Console.WriteLine("Streaming. Press Ctrl+C to stop.");
