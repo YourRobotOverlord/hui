@@ -40,10 +40,10 @@ internal static class CommandLine
             "ui" => new UiCommand(),
 
             "run" => new RunCommand(
-                GetRequired(options, "--bridge"),
-                GetRequired(options, "--app-key"),
-                GetRequired(options, "--client-key"),
-                GetRequired(options, "--area"),
+                GetOptionalNullable(options, "--bridge"),
+                GetOptionalNullable(options, "--app-key"),
+                GetOptionalNullable(options, "--client-key"),
+                GetOptionalNullable(options, "--area"),
                 GetOptionalInt(options, "--device-index"),
                 GetOptionalInt(options, "--fps", 30, min: 1, max: 60),
                 GetMapperKind(options, "--mapper", MapperKind.AudioReactive),
@@ -128,6 +128,13 @@ Run options:
         return options.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value)
             ? value.Trim()
             : fallback;
+    }
+
+    private static string? GetOptionalNullable(IReadOnlyDictionary<string, string?> options, string name)
+    {
+        return options.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value)
+            ? value.Trim()
+            : null;
     }
 
     private static int? GetOptionalInt(IReadOnlyDictionary<string, string?> options, string name)
@@ -230,10 +237,10 @@ internal sealed record ListAreasCommand(string Bridge, string AppKey) : Command;
 internal sealed record ListDevicesCommand : Command;
 
 internal sealed record RunCommand(
-    string Bridge,
-    string AppKey,
-    string ClientKey,
-    string Area,
+    string? Bridge,
+    string? AppKey,
+    string? ClientKey,
+    string? Area,
     int? DeviceIndex,
     int Fps,
     MapperKind Mapper,

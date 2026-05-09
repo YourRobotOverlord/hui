@@ -211,14 +211,20 @@ internal static class App
     {
         var settings = persisted;
 
-        settings.Connection.Bridge = command.Bridge;
-        settings.Connection.AppKey = command.AppKey;
-        settings.Connection.ClientKey = command.ClientKey;
-        settings.Connection.Area = command.Area;
-        if (command.DeviceIndex.HasValue)
-        {
-            settings.Connection.DeviceIndex = command.DeviceIndex;
-        }
+        if (!string.IsNullOrWhiteSpace(command.Bridge)) settings.Connection.Bridge = command.Bridge;
+        if (!string.IsNullOrWhiteSpace(command.AppKey)) settings.Connection.AppKey = command.AppKey;
+        if (!string.IsNullOrWhiteSpace(command.ClientKey)) settings.Connection.ClientKey = command.ClientKey;
+        if (!string.IsNullOrWhiteSpace(command.Area)) settings.Connection.Area = command.Area;
+        if (command.DeviceIndex.HasValue) settings.Connection.DeviceIndex = command.DeviceIndex;
+
+        if (string.IsNullOrWhiteSpace(settings.Connection.Bridge))
+            throw new CommandLineException("Missing required option --bridge.");
+        if (string.IsNullOrWhiteSpace(settings.Connection.AppKey))
+            throw new CommandLineException("Missing required option --app-key.");
+        if (string.IsNullOrWhiteSpace(settings.Connection.ClientKey))
+            throw new CommandLineException("Missing required option --client-key.");
+        if (string.IsNullOrWhiteSpace(settings.Connection.Area))
+            throw new CommandLineException("Missing required option --area.");
 
         settings.Connection.Fps = command.Fps;
         settings.CurrentModeId = command.Mapper switch
