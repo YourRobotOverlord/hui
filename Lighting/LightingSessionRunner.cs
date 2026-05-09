@@ -83,8 +83,15 @@ internal sealed class LightingSessionRunner(
             {
             }
 
-            await bridgeClient.SetStreamingActionAsync(initial.Connection.Bridge, initial.Connection.AppKey, area.Id, "stop", CancellationToken.None)
-                .ConfigureAwait(false);
+            try
+            {
+                using var stopTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await bridgeClient.SetStreamingActionAsync(initial.Connection.Bridge, initial.Connection.AppKey, area.Id, "stop", stopTimeout.Token)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -116,8 +123,15 @@ internal sealed class LightingSessionRunner(
         }
         finally
         {
-            await bridgeClient.SetStreamingActionAsync(normalized.Connection.Bridge, normalized.Connection.AppKey, area.Id, "stop", CancellationToken.None)
-                .ConfigureAwait(false);
+            try
+            {
+                using var stopTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await bridgeClient.SetStreamingActionAsync(normalized.Connection.Bridge, normalized.Connection.AppKey, area.Id, "stop", stopTimeout.Token)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+            }
         }
     }
 
