@@ -226,53 +226,25 @@ internal static class App
             }
         };
 
-        settings.AudioReactive = new AudioReactiveModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue
-        };
-        settings.CycleStrobe = new CycleStrobeModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue,
-            CycleSeconds = command.CycleSeconds
-        };
-        settings.Sparkle = new SparkleModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue
-        };
-        settings.WaveTravel = new WaveTravelModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue,
-            WaveSeconds = command.WaveSeconds
-        };
-        settings.AmbientDrift = new AmbientDriftModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue,
-            CycleSeconds = command.CycleSeconds
-        };
-        settings.BeatPulse = new BeatPulseModeSettings
-        {
-            Brightness = command.Brightness,
-            Sensitivity = command.Sensitivity,
-            WarmHue = command.WarmHue,
-            CoolHue = command.CoolHue
-        };
+        Apply(settings.AudioReactive);
+        Apply(settings.CycleStrobe);
+        settings.CycleStrobe.CycleSeconds = command.CycleSeconds;
+        Apply(settings.Sparkle);
+        Apply(settings.WaveTravel);
+        settings.WaveTravel.WaveSeconds = command.WaveSeconds;
+        Apply(settings.AmbientDrift);
+        settings.AmbientDrift.CycleSeconds = command.CycleSeconds;
+        Apply(settings.BeatPulse);
 
         return settings.Normalize();
+
+        void Apply(ModeSettingsBase s)
+        {
+            s.Brightness = command.Brightness;
+            s.Sensitivity = command.Sensitivity;
+            s.WarmHue = command.WarmHue;
+            s.CoolHue = command.CoolHue;
+        }
     }
 }
 
