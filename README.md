@@ -115,10 +115,10 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 
 | Option | Required | Description |
 |---|---|---|
-| `--bridge` | Yes | Hue Bridge IP address or hostname. |
-| `--app-key` | Yes | Hue application key used for authenticated bridge API calls. |
-| `--client-key` | Yes | Hue entertainment client key used as the PSK for the DTLS stream. |
-| `--area` | Yes | Entertainment area ID or exact entertainment area name. |
+| `--bridge` | No* | Hue Bridge IP address or hostname. |
+| `--app-key` | No* | Hue application key used for authenticated bridge API calls. |
+| `--client-key` | No* | Hue entertainment client key used as the PSK for the DTLS stream. |
+| `--area` | No* | Entertainment area ID or exact entertainment area name. |
 | `--device-index` | No | Windows render-device index from `list-devices`. If omitted, the default multimedia playback device is used. |
 | `--fps` | No | Stream frame rate. Accepts `1-60`. Default `30`. |
 | `--mapper` | No | Mapper mode: `audio-reactive`, `cycle-strobe`, `sparkle`, `wave-travel`, `ambient-drift`, or `beat-pulse`. Default `audio-reactive`. |
@@ -130,6 +130,7 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 ## Behavior notes
 
 - `pair` saves the bridge address, app key, and client key to the app config file.
+- `--bridge`, `--app-key`, `--client-key`, and `--area` are optional if they are already saved in the config file (e.g. after running `pair` or using the UI). If any are missing from both the CLI and config, the app exits with an error.
 - `--area` accepts either the exact area ID or the exact area name.
 - `--brightness` limits maximum streamed brightness from `0` to `1`.
 - `--fps` controls how often frames are pushed to the bridge. `30-50` is a practical range.
