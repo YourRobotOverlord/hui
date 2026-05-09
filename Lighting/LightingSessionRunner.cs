@@ -50,7 +50,7 @@ internal sealed class LightingSessionRunner(
             var stopwatch = Stopwatch.StartNew();
             while (!cancellationToken.IsCancellationRequested)
             {
-                var settings = settingsProvider().Normalize();
+                var settings = settingsProvider();
                 var mode = modeCatalog.GetCurrent(settings);
 
                 if (!ReferenceEquals(mode, activeMode))
@@ -150,9 +150,13 @@ internal sealed class LightingSessionRunner(
             return;
         }
 
-        streamer.SendFrame(
-            channels.Select(channel => new ChannelColor((byte)channel.ChannelId, endBehavior.Color))
-                .ToArray());
+        var result = new ChannelColor[channels.Count];
+        for (var i = 0; i < channels.Count; i++)
+        {
+            result[i] = new ChannelColor((byte)channels[i].ChannelId, endBehavior.Color);
+        }
+
+        streamer.SendFrame(result);
     }
 }
 
