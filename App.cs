@@ -77,7 +77,12 @@ internal static class App
                 return RunListDevices(host.Services.GetRequiredService<IAudioMonitorFactory>());
 
             case RunCommand run:
-                return await RunStreamingAsync(host.Services.GetRequiredService<LightingSessionRunner>(), run, cancellationToken).ConfigureAwait(false);
+                return await RunStreamingAsync(
+                        host.Services.GetRequiredService<LightingSessionRunner>(),
+                        host.Services.GetRequiredService<AppSettingsState>(),
+                        run,
+                        cancellationToken)
+                    .ConfigureAwait(false);
 
             default:
                 throw new CommandLineException("Unsupported command.");
@@ -182,9 +187,9 @@ internal static class App
         return 0;
     }
 
-    private static async Task<int> RunStreamingAsync(LightingSessionRunner sessionRunner, RunCommand command, CancellationToken cancellationToken)
+    private static async Task<int> RunStreamingAsync(LightingSessionRunner sessionRunner, AppSettingsState settingsState, RunCommand command, CancellationToken cancellationToken)
     {
-        var settings = CreateRunSettings(command);
+        var settings = CreateRunSettings(command, settingsState.Snapshot());
         Console.WriteLine($"Mode:   {settings.CurrentModeId}");
         Console.WriteLine($"FPS:    {settings.Connection.Fps}");
         Console.WriteLine("Streaming. Press Ctrl+C to stop.");
@@ -202,38 +207,35 @@ internal static class App
         return 0;
     }
 
-    private static AppSettings CreateRunSettings(RunCommand command)
+    private static AppSettings CreateRunSettings(RunCommand command, AppSettings persisted)
     {
-        var settings = new AppSettings
+        var settings = persisted;
+
+        settings.Connection.Bridge = command.Bridge;
+        settings.Connection.AppKey = command.AppKey;
+        settings.Connection.ClientKey = command.ClientKey;
+        settings.Connection.Area = command.Area;
+        if (command.DeviceIndex.HasValue)
         {
-            Connection = new ConnectionSettings
-            {
-                Bridge = command.Bridge,
-                AppKey = command.AppKey,
-                ClientKey = command.ClientKey,
-                Area = command.Area,
-                DeviceIndex = command.DeviceIndex,
-                Fps = command.Fps
-            },
-            CurrentModeId = command.Mapper switch
-            {
-                MapperKind.CycleStrobe => ModeIds.CycleStrobe,
-                MapperKind.Sparkle => ModeIds.Sparkle,
-                MapperKind.WaveTravel => ModeIds.WaveTravel,
-                MapperKind.AmbientDrift => ModeIds.AmbientDrift,
-                MapperKind.BeatPulse => ModeIds.BeatPulse,
-                _ => ModeIds.AudioReactive
-            }
+            settings.Connection.DeviceIndex = command.DeviceIndex;
+        }
+
+        settings.Connection.Fps = command.Fps;
+        settings.CurrentModeId = command.Mapper switch
+        {
+            MapperKind.CycleStrobe => ModeIds.CycleStrobe,
+            MapperKind.Sparkle => ModeIds.Sparkle,
+            MapperKind.WaveTravel => ModeIds.WaveTravel,
+            MapperKind.AmbientDrift => ModeIds.AmbientDrift,
+            MapperKind.BeatPulse => ModeIds.BeatPulse,
+            _ => ModeIds.AudioReactive
         };
 
         Apply(settings.AudioReactive);
         Apply(settings.CycleStrobe);
-        settings.CycleStrobe.CycleSeconds = command.CycleSeconds;
         Apply(settings.Sparkle);
         Apply(settings.WaveTravel);
-        settings.WaveTravel.WaveSeconds = command.WaveSeconds;
         Apply(settings.AmbientDrift);
-        settings.AmbientDrift.CycleSeconds = command.CycleSeconds;
         Apply(settings.BeatPulse);
 
         return settings.Normalize();
@@ -242,8 +244,6 @@ internal static class App
         {
             s.Brightness = command.Brightness;
             s.Sensitivity = command.Sensitivity;
-            s.WarmHue = command.WarmHue;
-            s.CoolHue = command.CoolHue;
         }
     }
 }

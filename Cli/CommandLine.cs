@@ -47,12 +47,8 @@ internal static class CommandLine
                 GetOptionalInt(options, "--device-index"),
                 GetOptionalInt(options, "--fps", 30, min: 1, max: 60),
                 GetMapperKind(options, "--mapper", MapperKind.AudioReactive),
-                GetOptionalDouble(options, "--cycle-seconds", 6.0, min: 0.1),
-                GetOptionalDouble(options, "--wave-seconds", 1.6, min: 0.1),
                 GetOptionalDouble(options, "--sensitivity", 1.75, min: 0.01),
-                GetOptionalDouble(options, "--brightness", 1.0, min: 0.0, max: 1.0),
-                GetOptionalDouble(options, "--warm-hue", 18.0, min: 0.0, max: 360.0),
-                GetOptionalDouble(options, "--cool-hue", 220.0, min: 0.0, max: 360.0)),
+                GetOptionalDouble(options, "--brightness", 1.0, min: 0.0, max: 1.0)),
 
             _ => throw new CommandLineException($"Unknown command '{args[0]}'.")
         };
@@ -87,12 +83,8 @@ Run options:
   --device-index  Optional render device index from list-devices
   --fps           Stream rate, 1-60. Default 30
   --mapper        audio-reactive, cycle-strobe, sparkle, wave-travel, ambient-drift, or beat-pulse. Default audio-reactive
-  --cycle-seconds Hue cycle length for cycle-strobe mapper. Default 6
-  --wave-seconds  Travel time for wave-travel mapper. Default 1.6
   --sensitivity   Audio gain multiplier. Default 1.75
   --brightness    Max brightness, 0-1. Default 1
-  --warm-hue      Hue for bass-heavy moments, 0-360. Default 18
-  --cool-hue      Hue for treble-heavy moments, 0-360. Default 220
 
 """);
     }
@@ -245,12 +237,8 @@ internal sealed record RunCommand(
     int? DeviceIndex,
     int Fps,
     MapperKind Mapper,
-    double CycleSeconds,
-    double WaveSeconds,
     double Sensitivity,
-    double Brightness,
-    double WarmHue,
-    double CoolHue) : Command;
+    double Brightness) : Command;
 
 internal enum MapperKind
 {
