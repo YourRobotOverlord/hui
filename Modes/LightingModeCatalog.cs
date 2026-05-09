@@ -1,9 +1,21 @@
 namespace hui.Modes;
 
-internal sealed class LightingModeCatalog(IEnumerable<ILightingMode> modes)
+internal sealed class LightingModeCatalog
 {
-    private readonly IReadOnlyList<ILightingMode> _orderedModes = modes.OrderBy(mode => mode.DisplayName, StringComparer.OrdinalIgnoreCase).ToArray();
-    private readonly Dictionary<string, ILightingMode> _byId = modes.ToDictionary(mode => mode.Id, StringComparer.OrdinalIgnoreCase);
+    private readonly IReadOnlyList<ILightingMode> _orderedModes;
+    private readonly Dictionary<string, ILightingMode> _byId;
+    private readonly Dictionary<string, int> _indexById;
+
+    public LightingModeCatalog(IEnumerable<ILightingMode> modes)
+    {
+        _orderedModes = modes.OrderBy(mode => mode.DisplayName, StringComparer.OrdinalIgnoreCase).ToArray();
+        _byId = _orderedModes.ToDictionary(mode => mode.Id, StringComparer.OrdinalIgnoreCase);
+        _indexById = new Dictionary<string, int>(_orderedModes.Count, StringComparer.OrdinalIgnoreCase);
+        for (var i = 0; i < _orderedModes.Count; i++)
+        {
+            _indexById[_orderedModes[i].Id] = i;
+        }
+    }
 
     public IReadOnlyList<ILightingMode> Modes => _orderedModes;
 
@@ -28,17 +40,7 @@ internal sealed class LightingModeCatalog(IEnumerable<ILightingMode> modes)
         return _orderedModes[(index - 1 + _orderedModes.Count) % _orderedModes.Count].Id;
     }
 
-    private int FindIndex(string currentId)
-    {
-        for (var index = 0; index < _orderedModes.Count; index++)
-        {
-            if (string.Equals(_orderedModes[index].Id, currentId, StringComparison.OrdinalIgnoreCase))
-            {
-                return index;
-            }
-        }
-
-        return 0;
-    }
+    private int FindIndex(string currentId) =>
+        _indexById.TryGetValue(currentId, out var index) ? index : 0;
 }
 
