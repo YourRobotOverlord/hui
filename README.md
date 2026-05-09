@@ -76,7 +76,7 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 Example with common tuning options:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8 --warm-hue 20 --cool-hue 220
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8
 ```
 
 ### Mapper examples
@@ -84,31 +84,31 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 Cycle-strobe:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper cycle-strobe --warm-hue 30 --cool-hue 280 --cycle-seconds 8 --brightness 1.0
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper cycle-strobe --brightness 1.0
 ```
 
 Sparkle:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper sparkle --warm-hue 210 --cool-hue 300 --sensitivity 2.2 --brightness 0.9
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper sparkle --sensitivity 2.2 --brightness 0.9
 ```
 
 Wave-travel:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper wave-travel --warm-hue 25 --cool-hue 220 --wave-seconds 1.8 --sensitivity 1.9 --brightness 0.95
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper wave-travel --sensitivity 1.9 --brightness 0.95
 ```
 
 Ambient-drift:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper ambient-drift --warm-hue 200 --cool-hue 320 --cycle-seconds 14 --sensitivity 1.4 --brightness 0.55
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper ambient-drift --sensitivity 1.4 --brightness 0.55
 ```
 
 Beat-pulse:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper beat-pulse --warm-hue 18 --cool-hue 240 --sensitivity 1.9 --brightness 1.0
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper beat-pulse --sensitivity 1.9 --brightness 1.0
 ```
 
 ## CLI options
@@ -126,8 +126,6 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 | `--wave-seconds` | No | Wave travel time in `wave-travel`. Accepts values `>= 0.1`. Default `1.6`. |
 | `--sensitivity` | No | In `audio-reactive`, acts as audio gain. In `cycle-strobe`, `sparkle`, `wave-travel`, and `beat-pulse`, higher values make transient-triggered effects fire more easily. Accepts values `>= 0.01`. Default `1.75`. |
 | `--brightness` | No | Maximum brightness cap for streamed colors. In `cycle-strobe` and `beat-pulse`, this directly controls flash or pulse intensity. Accepts `0-1`. Default `1`. |
-| `--warm-hue` | No | Hue angle in degrees for warmer, bass-heavy moments in `audio-reactive`, or the first hue endpoint in `cycle-strobe`. Accepts `0-360`. Default `18`. |
-| `--cool-hue` | No | Hue angle in degrees for cooler, treble-heavy moments in `audio-reactive`, or the second hue endpoint in `cycle-strobe`. Accepts `0-360`. Default `220`. |
 
 ## Behavior notes
 
@@ -135,11 +133,11 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 - `--area` accepts either the exact area ID or the exact area name.
 - `--brightness` limits maximum streamed brightness from `0` to `1`.
 - `--fps` controls how often frames are pushed to the bridge. `30-50` is a practical range.
-- `cycle-strobe` sweeps across the full numeric `--warm-hue` to `--cool-hue` range and back independently of the music. For example, `0` to `360` traverses the full wheel forward and then back. In this mode, `--brightness` controls flash intensity and `--sensitivity` controls how easily detected transients trigger flashes.
+- `cycle-strobe` sweeps across the configured warm and cool hue range and back independently of the music. In this mode, `--brightness` controls flash intensity and `--sensitivity` controls how easily detected transients trigger flashes.
 - `sparkle` keeps a dim base wash and overlays transient-triggered random white sparkles. In this mode, higher `--sensitivity` makes sparkles trigger more easily.
 - In the UI, `sparkle` also exposes a configurable sparkle color picker for transient sparkle flashes.
-- `wave-travel` launches alternating left-to-right and right-to-left waves on detected transients. `--wave-seconds` controls travel speed, while `--brightness` controls wave intensity.
-- `ambient-drift` slowly morphs between the hue endpoints while audio only nudges drift speed and brightness. Use larger `--cycle-seconds` values for calmer motion.
+- `wave-travel` launches alternating left-to-right and right-to-left waves on detected transients. `--brightness` controls wave intensity.
+- `ambient-drift` slowly morphs between the configured hue endpoints while audio only nudges drift speed and brightness.
 - `beat-pulse` launches a full-area pulse on detected beats with fast attack and smooth decay. In this mode, `--sensitivity` controls beat detection threshold and `--brightness` controls pulse intensity.
 - The UI also includes `split-strobe`, which randomly splits lights into bass and treble groups with independent colors plus configurable attack, decay, and background levels.
 - When the UI exits while lights are running, `hui` can either send a blackout frame or set the whole entertainment area to a configured solid color before stopping the stream.
