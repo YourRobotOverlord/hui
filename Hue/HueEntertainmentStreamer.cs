@@ -66,7 +66,7 @@ internal sealed class HueEntertainmentStreamer : IDisposable
         buffer[10] = 0x00;
         buffer[11] = _sequenceNumber++;
         buffer[14] = 0x00;
-        Encoding.ASCII.GetBytes(Encoding.ASCII.GetString(_areaIdBytes)).CopyTo(buffer, 16);
+        _areaIdBytes.CopyTo(buffer, 16);
 
         var offset = 52;
         foreach (var color in chunk)
