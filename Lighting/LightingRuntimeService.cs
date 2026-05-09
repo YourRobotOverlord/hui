@@ -102,7 +102,8 @@ internal sealed class LightingRuntimeService(
                         ActiveDeviceName = device;
                         StatusMessage = $"Running {modeCatalog.GetCurrent(settingsState.Snapshot()).DisplayName}";
                     },
-                    () => _endBehavior)
+                    () => _endBehavior,
+                    mode => StatusMessage = $"Running {mode.DisplayName}")
                 .ConfigureAwait(false);
 
             StatusMessage = "Stopped";

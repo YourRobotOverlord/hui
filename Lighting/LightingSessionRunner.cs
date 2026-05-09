@@ -16,7 +16,8 @@ internal sealed class LightingSessionRunner(
         Func<AppSettings> settingsProvider,
         CancellationToken cancellationToken,
         Action<EntertainmentArea, string>? onConnected = null,
-        Func<SessionEndBehavior>? endBehaviorProvider = null)
+        Func<SessionEndBehavior>? endBehaviorProvider = null,
+        Action<ILightingMode>? onModeChanged = null)
     {
         var initial = settingsProvider().Normalize();
         Validate(initial);
@@ -58,6 +59,7 @@ internal sealed class LightingSessionRunner(
                     activeMode?.Reset();
                     mode.Reset();
                     activeMode = mode;
+                    onModeChanged?.Invoke(mode);
                 }
 
                 var frame = monitor.GetFrame();
