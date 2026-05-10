@@ -46,7 +46,7 @@ internal static class CommandLine
                 GetOptionalNullable(options, "--area"),
                 GetOptionalInt(options, "--device-index"),
                 GetOptionalInt(options, "--fps", 30, min: 1, max: 60),
-                GetMapperKind(options, "--mapper", MapperKind.AudioReactive),
+                GetMapperKind(options, "--mode", MapperKind.AudioReactive),
                 GetOptionalDouble(options, "--sensitivity", 1.75, min: 0.01),
                 GetOptionalDouble(options, "--brightness", 1.0, min: 0.0, max: 1.0)),
 
@@ -64,7 +64,7 @@ Commands:
   ui            Launch interactive Terminal.Gui application
   pair          Pair app with bridge and request entertainment client key
   list-areas    Show entertainment areas and channel positions
-  list-devices  Show Windows render devices usable for loopback capture
+  list-devices  Show Windows audio devices usable for loopback capture
   run           Start live audio -> Hue entertainment sync
 
 Examples:
@@ -80,9 +80,9 @@ Run options:
   --app-key       Hue application key
   --client-key    Hue entertainment client key from pairing
   --area          Entertainment area id or exact name
-  --device-index  Optional render device index from list-devices
+  --device-index  Optional audio device index from list-devices
   --fps           Stream rate, 1-60. Default 30
-  --mapper        audio-reactive, cycle-strobe, sparkle, wave-travel, ambient-drift, or beat-pulse. Default audio-reactive
+  --mode          audio-reactive, cycle-strobe, sparkle, wave-travel, ambient-drift, or beat-pulse. Default audio-reactive
   --sensitivity   Audio gain multiplier. Default 1.75
   --brightness    Max brightness, 0-1. Default 1
 
