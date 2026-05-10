@@ -45,7 +45,7 @@ Use `dotnet tool update -g --add-source ./bin/Release hui` to update after pulli
 
 ## Requirements
 
-- Windows machine with .NET 10 SDK (Linux version coming)
+- Windows machine with .NET 10 runtime (SDK required only when building from source)
 - Hue Bridge on the local network
 - Entertainment area created in the Hue app
 - Lights assigned to that entertainment area
@@ -57,7 +57,7 @@ Use `dotnet tool update -g --add-source ./bin/Release hui` to update after pulli
 Press the link button on the Hue Bridge, then run:
 
 ```powershell
-dotnet run -- pair --bridge 192.168.1.20
+hui pair --bridge 192.168.1.20
 ```
 
 This requests and saves:
@@ -68,7 +68,7 @@ This requests and saves:
 ### 2. List entertainment areas
 
 ```powershell
-dotnet run -- list-areas --bridge 192.168.1.20 --app-key YOUR_APP_KEY
+hui list-areas --bridge 192.168.1.20 --app-key YOUR_APP_KEY
 ```
 
 This prints area IDs, names, status, and channel positions.
@@ -76,7 +76,7 @@ This prints area IDs, names, status, and channel positions.
 ### 3. List audio output devices
 
 ```powershell
-dotnet run -- list-devices
+hui list-devices
 ```
 
 Use the `--device-index` value from this list if you do not want the default Windows playback device.
@@ -86,7 +86,7 @@ Use the `--device-index` value from this list if you do not want the default Win
 Launch the Terminal.Gui interface:
 
 ```powershell
-dotnet run -- ui
+hui ui
 ```
 
 Running the app with no arguments also opens the UI.
@@ -107,13 +107,13 @@ Use `F3` to edit bridge connection, device selection, FPS, and app-exit lighting
 Run live audio sync directly from the command line:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area YOUR_AREA_ID
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area YOUR_AREA_ID
 ```
 
 Example with common tuning options:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8
 ```
 
 ### Mode examples
@@ -121,31 +121,31 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 Cycle-strobe:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode cycle-strobe --brightness 1.0
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode cycle-strobe --brightness 1.0
 ```
 
 Sparkle:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode sparkle --sensitivity 2.2 --brightness 0.9
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode sparkle --sensitivity 2.2 --brightness 0.9
 ```
 
 Wave-travel:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode wave-travel --sensitivity 1.9 --brightness 0.95
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode wave-travel --sensitivity 1.9 --brightness 0.95
 ```
 
 Ambient-drift:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode ambient-drift --sensitivity 1.4 --brightness 0.55
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode ambient-drift --sensitivity 1.4 --brightness 0.55
 ```
 
 Beat-pulse:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode beat-pulse --sensitivity 1.9 --brightness 1.0
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode beat-pulse --sensitivity 1.9 --brightness 1.0
 ```
 
 ## CLI options
