@@ -180,4 +180,4 @@ hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KE
 - The UI also includes `split-strobe`, which randomly splits lights into bass and treble groups with independent colors plus configurable attack, decay, and background levels.
 - When the UI exits while lights are running, `hui` can either send a blackout frame or set the whole entertainment area to a configured solid color before stopping the stream.
 
-<img width="320" height="320" alt="output" src="https://github.com/user-attachments/assets/2daeb89d-c078-4dc7-ae85-4601ca4a69c2" />![Uploading Screenshot 2026-05-04 173523.png…]()
+<img width="320" height="320" alt="output" src="https://github.com/user-attachments/assets/2daeb89d-c078-4dc7-ae85-4601ca4a69c2" />
