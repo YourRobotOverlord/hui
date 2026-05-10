@@ -79,36 +79,36 @@ Example with common tuning options:
 dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --device-index 1 --fps 40 --sensitivity 2.0 --brightness 0.8
 ```
 
-### Mapper examples
+### Mode examples
 
 Cycle-strobe:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper cycle-strobe --brightness 1.0
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode cycle-strobe --brightness 1.0
 ```
 
 Sparkle:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper sparkle --sensitivity 2.2 --brightness 0.9
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode sparkle --sensitivity 2.2 --brightness 0.9
 ```
 
 Wave-travel:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper wave-travel --sensitivity 1.9 --brightness 0.95
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode wave-travel --sensitivity 1.9 --brightness 0.95
 ```
 
 Ambient-drift:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper ambient-drift --sensitivity 1.4 --brightness 0.55
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode ambient-drift --sensitivity 1.4 --brightness 0.55
 ```
 
 Beat-pulse:
 
 ```powershell
-dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mapper beat-pulse --sensitivity 1.9 --brightness 1.0
+dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom --mode beat-pulse --sensitivity 1.9 --brightness 1.0
 ```
 
 ## CLI options
@@ -119,9 +119,9 @@ dotnet run -- run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR
 | `--app-key` | No* | Hue application key used for authenticated bridge API calls. |
 | `--client-key` | No* | Hue entertainment client key used as the PSK for the DTLS stream. |
 | `--area` | No* | Entertainment area ID or exact entertainment area name. |
-| `--device-index` | No | Windows render-device index from `list-devices`. If omitted, the default multimedia playback device is used. |
+| `--device-index` | No | Windows audio device index from `list-devices`. If omitted, the default multimedia playback device is used. |
 | `--fps` | No | Stream frame rate. Accepts `1-60`. Default `30`. |
-| `--mapper` | No | Mapper mode: `audio-reactive`, `cycle-strobe`, `sparkle`, `wave-travel`, `ambient-drift`, or `beat-pulse`. Default `audio-reactive`. |
+| `--mode` | No | Lighting mode: `audio-reactive`, `cycle-strobe`, `sparkle`, `wave-travel`, `ambient-drift`, or `beat-pulse`. Default `audio-reactive`. |
 | `--cycle-seconds` | No | Full hue cycle time in `cycle-strobe`. Accepts values `>= 0.1`. Default `6`. |
 | `--wave-seconds` | No | Wave travel time in `wave-travel`. Accepts values `>= 0.1`. Default `1.6`. |
 | `--sensitivity` | No | In `audio-reactive`, acts as audio gain. In `cycle-strobe`, `sparkle`, `wave-travel`, and `beat-pulse`, higher values make transient-triggered effects fire more easily. Accepts values `>= 0.01`. Default `1.75`. |
