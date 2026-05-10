@@ -72,6 +72,7 @@ internal static class App
                 return RunListDevices(host.Services.GetRequiredService<IAudioMonitorFactory>());
 
             case RunCommand run:
+                Console.TreatControlCAsInput = false;
                 return await RunStreamingAsync(
                         host.Services.GetRequiredService<LightingSessionRunner>(),
                         host.Services.GetRequiredService<AppSettingsState>(),
