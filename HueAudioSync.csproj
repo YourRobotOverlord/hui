@@ -11,7 +11,19 @@
     <ToolCommandName>hui</ToolCommandName>
     <PackageId>hui</PackageId>
     <Version>1.0.0</Version>
+    <Description>Syncs Philips Hue entertainment lights to system audio on Windows.</Description>
+    <Authors>YourRobotOverlord</Authors>
+    <PackageTags>hue;philips-hue;audio;sync;entertainment;lighting</PackageTags>
+    <RepositoryUrl>https://github.com/YourRobotOverlord/hui</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/YourRobotOverlord/hui</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
