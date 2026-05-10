@@ -189,17 +189,60 @@ internal static class App
         Console.WriteLine($"FPS:    {settings.Connection.Fps}");
         Console.WriteLine("Streaming. Press Ctrl+C to stop.");
 
-        await sessionRunner.RunAsync(
-                () => settings.Clone(),
-                cancellationToken,
-                (area, device) =>
-                {
-                    Console.WriteLine($"Area:   {area.Name} [{area.Id}]");
-                    Console.WriteLine($"Device: {device}");
-                })
-            .ConfigureAwait(false);
+        // If something (e.g. Terminal.Gui static init) has set TreatControlCAsInput=true,
+        // CancelKeyPress never fires. ReadKey polling detects Ctrl+C as '\x03' in that case.
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var keyMonitor = WatchForCtrlCAsync(linkedCts);
+
+        try
+        {
+            await sessionRunner.RunAsync(
+                    () => settings.Clone(),
+                    linkedCts.Token,
+                    (area, device) =>
+                    {
+                        Console.WriteLine($"Area:   {area.Name} [{area.Id}]");
+                        Console.WriteLine($"Device: {device}");
+                    })
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            await linkedCts.CancelAsync();
+            await keyMonitor.ConfigureAwait(false);
+        }
 
         return 0;
+    }
+
+    private static async Task WatchForCtrlCAsync(CancellationTokenSource cts)
+    {
+        try
+        {
+            while (!cts.IsCancellationRequested)
+            {
+                try
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        var key = Console.ReadKey(intercept: true);
+                        if (key.KeyChar == '\x03' || (key.Key == ConsoleKey.C && key.Modifiers.HasFlag(ConsoleModifiers.Control)))
+                        {
+                            await cts.CancelAsync();
+                            return;
+                        }
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // stdin is redirected; key polling is unavailable
+                    return;
+                }
+
+                await Task.Delay(50, cts.Token);
+            }
+        }
+        catch (OperationCanceledException) { }
     }
 
     private static AppSettings CreateRunSettings(RunCommand command, AppSettings persisted)
