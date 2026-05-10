@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <AssemblyName>hui</AssemblyName>
     <RootNamespace>hui</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>hui</ToolCommandName>
+    <PackageId>hui</PackageId>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

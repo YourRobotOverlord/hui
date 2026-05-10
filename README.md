@@ -6,6 +6,38 @@
 
 Light updates use the **Hue Entertainment API** DTLS stream on UDP `2100`. Bridge REST calls are used for pairing, area discovery, and starting or stopping entertainment mode.
 
+## Installation
+
+### Install as a global dotnet tool
+
+Clone the repo, then pack and install:
+
+```powershell
+git clone https://github.com/YourRobotOverlord/hui.git
+cd hui
+dotnet pack -c Release
+dotnet tool install --global --add-source ./bin/Release hui
+```
+
+After installation, run `hui` from anywhere:
+
+```powershell
+hui run --bridge 192.168.1.20 --app-key YOUR_APP_KEY --client-key YOUR_CLIENT_KEY --area LivingRoom
+```
+
+To update after pulling new changes:
+
+```powershell
+dotnet pack -c Release
+dotnet tool update --global --add-source ./bin/Release hui
+```
+
+To uninstall:
+
+```powershell
+dotnet tool uninstall --global hui
+```
+
 ## Requirements
 
 - Windows machine with .NET 10 SDK (Linux version coming)
