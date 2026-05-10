@@ -77,7 +77,7 @@ internal sealed class LightingSessionRunner(
 
             try
             {
-                SendEndFrame(streamer, area.Channels, endBehaviorProvider?.Invoke() ?? SessionEndBehavior.BlackoutFrame);
+                SendEndFrame(streamer, area.Channels, endBehaviorProvider?.Invoke() ?? CreateExitBehavior(initial.Connection));
             }
             catch
             {
