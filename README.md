@@ -2,6 +2,8 @@
 
 # hui
 
+> ⚠️ **Epilepsy Warning:** Some lighting modes (such as `cycle-strobe`, `sparkle`, `split-strobe`, and `beat-pulse`) produce rapidly flashing lights. These effects may trigger seizures in people with photosensitive epilepsy. Use with caution.
+
 `hui` syncs Philips Hue entertainment lights to system audio on Windows. Use it either from the interactive Terminal.Gui app or from the CLI.
 
 Light updates use the **Hue Entertainment API** DTLS stream on UDP `2100`. Bridge REST calls are used for pairing, area discovery, and starting or stopping entertainment mode.
